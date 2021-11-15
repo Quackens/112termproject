@@ -53,13 +53,14 @@ class Player(object):
         (x0, y0, x1, y1) = self.getPlayerBounds()
         # (feet level = y1)
         # Get 2 row col for the lower block of player: one for each corner
-        c1row, c1col = GetBounds.RowCol(self.app, x0, y1)
-        c2row, c2col = GetBounds.RowCol(self.app, x1, y1)
+        c1row, c1col = GetBounds.RowCol(self.app, x0 + 0.05, y1)
+        c2row, c2col = GetBounds.RowCol(self.app, x1 - 0.05, y1)
 
         block1 = self.currChunk[c1row][c1col]
         block2 = self.currChunk[c2row][c2col]
         (b1x0, b1y0, b1x1, b1y1) = block1.getBlockBounds()
         (b2x0, b2y0, b2x1, b2y1) = block2.getBlockBounds()
+        
         if (not isinstance(block1, AirBlock) and b1y0 == y1) or (not isinstance(block2, AirBlock) and b2y0 == y1):
             return True
         else:

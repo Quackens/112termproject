@@ -51,11 +51,18 @@ class AirBlock(Block):
     def __init__(self, app, row, col):
         super().__init__(app, row, col)
         self.texture = "White"
-    
+
     def render(self, canvas):
         pass
 
     def __repr__(self):
         return 'AirBlock'
 
+class DirtBlock(Block):
+    def __init__(self, app, row, col):
+        super().__init__(app, row, col)
+        self.texture = "Brown"
+
+    def __repr__(self):
+        return 'DirtBlock'
 
