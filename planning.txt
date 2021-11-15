@@ -1,0 +1,36 @@
+Player movement
+
+Blocks
+    - Trees
+    - Grass, dirt
+    - Stone
+
+
+Mining
+Placing
+Crafting and inventory
+Movement
+Sidescrolling
+Regular terrain generation
+
+Cave generation
+Mobs
+Mob AI (pathfinding)
+Health regeneration
+
+
+
+
+Physics
+
+
+
+
+
+HOW TO DRAW GRIDS
+
+Define grid size
+Define rows and cols of grids
+
+
+Map generator
