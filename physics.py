@@ -2,8 +2,8 @@
 
 class Gravity(object):
     def __init__(self):
-        self.velocityD = 2
+        self.velocityY = 10
     
-    def isOnBlock(self):
+    def fall(self):
         pass
 

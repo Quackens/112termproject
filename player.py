@@ -52,12 +52,9 @@ class Player(object):
     def isOnFloor(self):
         (x0, y0, x1, y1) = self.getPlayerBounds()
         # (feet level = y1)
-
-        # Get row col for the lower block of player
-        # c1row, c1col = GetBounds.RowCol(self.app, (x0+x1)/2, y1)
+        # Get 2 row col for the lower block of player: one for each corner
         c1row, c1col = GetBounds.RowCol(self.app, x0, y1)
         c2row, c2col = GetBounds.RowCol(self.app, x1, y1)
-
 
         block1 = self.currChunk[c1row][c1col]
         block2 = self.currChunk[c2row][c2col]
@@ -77,6 +74,8 @@ class Player(object):
         #         if not isinstance(block, AirBlock) and by0 == y1:
         #             return True
         # return False
+    
+    # TODO: Side collisions with blocks
             
     # Makes the player fall as long as their feet are touching air block
     def gravity(self):
@@ -84,9 +83,13 @@ class Player(object):
             self.app.scrollY += 2
             self.playerY += 2
 
+
     # when clicked, break the block that is clicked
     def breakBlock(self, x, y):
         row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
         if not isinstance(self.currChunk[row][col], AirBlock):
             oldBlock = self.currChunk[row][col]
             self.app.grid[row][col] = AirBlock(self.app, oldBlock.row, oldBlock.col)
+
+    # TODO: place blocks
+    
