@@ -1,9 +1,8 @@
 from entities import *
 
-# Player class, follows gravity class
+# Player class
 class Player(object):
     def __init__(self, app, chunk):
-        super().__init__()  # takes in all the attributes from gravity
         self.app = app
         self.playerX = app.width // 2
         self.playerY = app.height // 2
@@ -11,7 +10,9 @@ class Player(object):
         self.playerWidth = app.blockLen
         self.currChunk = chunk 
         self.isJumping = False
-
+        self.dx = 0
+        self.dy = 0
+    
     # Returns the absolute bounds of the player
     def getPlayerBounds(self):
         x0, y0 = self.playerX - self.playerWidth/2, self.playerY - self.playerLen/2
@@ -34,6 +35,10 @@ class Player(object):
     def down(self):
         self.app.scrollY += 40
         self.playerY += 40
+
+    def FLY(self):
+        self.app.scrollY -= 30
+        self.playerY -= 30
 
     def __repr__(self):
         return "Player"
@@ -65,25 +70,22 @@ class Player(object):
             return True
         else:
             return False
-        
-        # redundant code
-        # for dr in [-1, 0, 1]:
-        #     for dc in [-1, 0, 1]:
-        #         checkRow, checkCol = row + dr, col + dc
-        #         block = self.currChunk[checkRow][checkCol]
-        #         (bx0, by0, bx1, by1) = block.getBlockBounds()
-        #         if not isinstance(block, AirBlock) and by0 == y1:
-        #             return True
-        # return False
     
     # TODO: Side collisions with blocks
-            
+    def leftSideCollision(self):
+        pass
+
+    def rightSideCollision(self):
+        pass
+
+    def headCollision(self):
+        pass
+
     # Makes the player fall as long as their feet are touching air block
     def gravity(self):
         if (not self.isOnFloor()):
             self.app.scrollY += 2
             self.playerY += 2
-
 
     # when clicked, break the block that is clicked
     def breakBlock(self, x, y):
@@ -93,4 +95,22 @@ class Player(object):
             self.app.grid[row][col] = AirBlock(self.app, oldBlock.row, oldBlock.col)
 
     # TODO: place blocks
+    # How to configure ismousepressed right click? differentiate from left click
+
+# Class for mobs (including enemies)
+class Mob(Player):
+    def __init__(self, posX, posY):
+        super().__init__()
+        self.playerX = posX
+        self.playerY = posY
     
+
+    def isPlayerReachable(self):
+        pass
+    
+    def findPlayer(self):
+        pass
+
+
+# Pre mvp pathfinding: bfs
+# post mvp: a star and dijkstra's (digging through walls, blocks have huge weights)

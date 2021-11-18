@@ -61,8 +61,33 @@ class AirBlock(Block):
 class DirtBlock(Block):
     def __init__(self, app, row, col):
         super().__init__(app, row, col)
-        self.texture = "Brown"
+        self.texture = "saddle brown"
 
     def __repr__(self):
         return 'DirtBlock'
+
+class StoneBlock(Block):
+    def __init__(self, app, row, col):
+        super().__init__(app, row, col)
+        self.texture = "Grey"
+
+    def __repr__(self):
+        return 'StoneBlock'
+
+class LogBlock(Block):
+    def __init__(self, app, row, col):
+        super().__init__(app, row, col)
+        self.texture = ""
+
+    def __repr__(self):
+        return 'LogBlock'
+
+class LeafBlock(Block):
+    def __init__(self, app, row, col):
+        super().__init__(app, row, col)
+        self.texture = "Maroon"
+
+    def __repr__(self):
+        return 'LeafBlock'
+
 

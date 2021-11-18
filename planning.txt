@@ -1,36 +1,24 @@
 Player movement
 
-Blocks
-    - Trees
-    - Grass, dirt
-    - Stone
-
-
 Mining
 Placing
 Crafting and inventory
-Movement
-Sidescrolling
+Movement - Physics
 Regular terrain generation
 
-Cave generation
 Mobs
 Mob AI (pathfinding)
 Health regeneration
-
-
-
-
-Physics
-
-
-
-
-
-HOW TO DRAW GRIDS
-
-Define grid size
-Define rows and cols of grids
-
-
 Map generator
+
+
+Problems:
+- Infinite world generation: how do you chunk it without lagging?
+    - Possible Solution: only spawn one chunk ahead and behind player at a time.
+        Load the respective chunks into the player's interactable world whilst saving it
+        into a larger array at a given time
+    - Calculate what is needed to be draw on screen at a time, and then pass these row col parameters into the nested loops
+    - Claculate what is needed to be LOOPED through for simulations, and then take a similar approach to drawing
+    - Chunking is a bit complex, if you want complexity points you can do that ig
+- Save mechanism - writing to a save file
+- 
