@@ -5,7 +5,7 @@ class Player(object):
     def __init__(self, app, chunk):
         self.app = app
         self.playerX = app.width // 2
-        self.playerY = app.height // 2
+        self.playerY = app.height /8/ 2
         self.playerLen = app.blockLen * 2
         self.playerWidth = app.blockLen
         self.currChunk = chunk 
@@ -114,3 +114,28 @@ class Mob(Player):
 
 # Pre mvp pathfinding: bfs
 # post mvp: a star and dijkstra's (digging through walls, blocks have huge weights)
+
+# Taken from the mini lecture powerpoint
+class Graph(object):
+    def __init__(self):
+        self.table = dict()
+    
+    def addEdge(self, nodeA, nodeB, weight):
+        if nodeA not in self.table:
+            self.table[nodeA] = {}
+        if nodeB not in self.table:
+            self.table[nodeB] = {}
+        self.table[nodeA][nodeB] = weight
+        self.table[nodeB][nodeA] = weight
+
+
+# Keep a set of all vertices that are visited, initially empty
+# Have a queue of unvisited neighbors (initially just the start node)
+# Extract the current node from the front of the queue
+# Skip if the current node has already been visited, otherwise mark it as visited
+# Stop if the current node = the target node
+# Loop over the neighbors of the current node
+# If they are unvisited, add them to the end of the queue
+# Repeat 3-7 until the queue is empty
+# This is typically not done with recursion
+
