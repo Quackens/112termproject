@@ -106,24 +106,77 @@ class Bat(Player):
         self.playerY = posY
         self.playerLen = app.blockLen
         self.playerWidth = app.blockLen
-
-    def isPlayerReachable(self):
-        pass
     
+    def render(self, canvas):
+        x = self.playerX
+        y = self.playerY
+        canvas.create_rectangle(x-self.playerWidth/2, y-self.playerLen/2,
+                                x+self.playerWidth/2, y+self.playerLen/2, fill='Lime')
+    # Returns whether the bat is close to the player (within a block radius of the player)
+    def nearPlayer(self, row, col):
+        playerX, playerY = self.app.playerX, self.app.playerY
+        mobX, mobY = self.playerX, self.playerY
+        if abs(playerX - mobX) < self.app.blockLen and abs(playerY - mobY) < self.app.blockLen:
+            return True
+        else:
+            return False
+    # Assume that the Bat can reach the player on every instance
     # Loop through adjacent cells
     def getNeighbouringBlocks(self, row, col):
         neighbours = []
         for (drow, dcol) in [(0, 1), (1, 0), (-1, 0), (0, -1)]:
-            neighbours.append((row+drow, col+dcol))
+            if isinstance(self.app.grid[row+drow][col+dcol], AirBlock):
+                neighbours.append((row+drow, col+dcol))
         return neighbours
+
+# TODO:
+    def tracepath(self, graph, startNode, targetNode):
+        # go through each key's dictionary and find the target node
+        path = []
+        for node in graph.table:
+                if targetNode in graph.table[node]:
+                    path.append(node)
+                    targetNode = node
+        
+        while (targetNode != startNode):
+            
+            
+            # Keep going back until the targetNode hits startNode, then return reversed list
+                if targetNode in graph.table[node]:
+                    path.append(node)
+                    targetNode = node
+        path.append(startNode)
+        path.reverse()
+        return path
+
 
     def generatePath(self):
         startRow, startCol = self.getPlayerBounds()
+        targetRow, targetCol = GetBounds.RowCol(self.app, self.app.playerX, self.app.playerY)
         path = Graph()
-        while 
+        queue = [(startRow, startCol)]
+        visited = set()
+        passes = 0
+        while len(queue) != 0:
+            currRow, currCol = queue.pop(0)
+            if (currRow, currCol) in visited:
+                continue
+            elif (neighbour[0], neighbour[1]) == (targetRow, targetCol):
+                    return self.tracePath(path, (startRow, startCol), (targetRow, targetCol))
+            
+            neighbours = self.getNeighbouringBlocks(currRow, currCol)
+            for neighbour in neighbours:
+                if neighbour not in visited:
+                    path.addEdge((startRow, startCol), neighbour)
+                    queue.append(neighbour)
+            passes += 1
+            print(path) # for testing
+            if passes == 100:
+                break
+        
+                    
 
 
-    
 
 # Keep a set of all vertices that are visited, initially empty
 # Have a queue of unvisited neighbors (initially just the start node)
