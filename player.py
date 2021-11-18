@@ -5,7 +5,7 @@ class Player(object):
     def __init__(self, app, chunk):
         self.app = app
         self.playerX = app.width // 2
-        self.playerY = app.height /8/ 2
+        self.playerY = app.height // 2
         self.playerLen = app.blockLen * 2
         self.playerWidth = app.blockLen
         self.currChunk = chunk 
@@ -97,37 +97,33 @@ class Player(object):
     # TODO: place blocks
     # How to configure ismousepressed right click? differentiate from left click
 
-# Class for mobs (including enemies)
-class Mob(Player):
-    def __init__(self, posX, posY):
+# Class for bats (flying things that attack you)
+# Since inheriting from player, just pretend mobs are player entities too
+class Bat(Player):
+    def __init__(self, app, posX, posY):
         super().__init__()
         self.playerX = posX
         self.playerY = posY
-    
+        self.playerLen = app.blockLen
+        self.playerWidth = app.blockLen
 
     def isPlayerReachable(self):
         pass
     
-    def findPlayer(self):
-        pass
+    # Loop through adjacent cells
+    def getNeighbouringBlocks(self, row, col):
+        neighbours = []
+        for (drow, dcol) in [(0, 1), (1, 0), (-1, 0), (0, -1)]:
+            neighbours.append((row+drow, col+dcol))
+        return neighbours
+
+    def generatePath(self):
+        startRow, startCol = self.getPlayerBounds()
+        path = Graph()
+        while 
 
 
-# Pre mvp pathfinding: bfs
-# post mvp: a star and dijkstra's (digging through walls, blocks have huge weights)
-
-# Taken from the mini lecture powerpoint
-class Graph(object):
-    def __init__(self):
-        self.table = dict()
     
-    def addEdge(self, nodeA, nodeB, weight):
-        if nodeA not in self.table:
-            self.table[nodeA] = {}
-        if nodeB not in self.table:
-            self.table[nodeB] = {}
-        self.table[nodeA][nodeB] = weight
-        self.table[nodeB][nodeA] = weight
-
 
 # Keep a set of all vertices that are visited, initially empty
 # Have a queue of unvisited neighbors (initially just the start node)
@@ -139,3 +135,40 @@ class Graph(object):
 # Repeat 3-7 until the queue is empty
 # This is typically not done with recursion
 
+# Simple zombie pathfinding:
+# if a shortest path exist to the player, then take it
+# paths that dont qualify include blocks that are more than 2 high (cant jump over) and also ones that have 5+ blocks of falling
+# otherwise, stand on the block closest to the player
+# 1. generate the graph with nodes = airblocks with solid block below or two blocks beneath
+
+
+# EASY: MAKE a 'bird' that flies to the player
+# Treat all air blocks as nodes
+# Adjacent nodes are air blocks that are NSEW to the central block
+
+
+# NB: since the player is always moving, update the pathfinding every few 'ticks' to set a new path
+
+# Taken from the mini lecture powerpoint
+class Graph(object):
+    def __init__(self):
+        self.table = dict()
+    
+    def addEdge(self, nodeA, nodeB, weight=1):
+        if nodeA not in self.table:
+            self.table[nodeA] = {}
+        if nodeB not in self.table:
+            self.table[nodeB] = {}
+
+        # Not used for BFS
+        self.table[nodeA][nodeB] = weight
+        self.table[nodeA][nodeB] = weight
+
+    def getEdge(self, nodeA, nodeB):
+        return self.table[nodeA][nodeB]
+    
+    def getNodes(self):
+        return list(self.table)
+    
+    def getNeighbours(self, node):
+        return set(self.table[node])
