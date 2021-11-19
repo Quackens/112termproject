@@ -35,6 +35,10 @@ def mousePressed(app, event):
 def timerFired(app):
     app.player.gravity()
 
+# TODO:
+def drawMobs(app, canvas):
+    pass
+
 # calculate what is needed to be draw on screen at a time, and then pass these row col parameters into the nested loops
 def drawGrid(app, canvas):
     renderWidth = app.width // app.blockLen
@@ -52,6 +56,7 @@ def drawGrid(app, canvas):
 def redrawAll(app, canvas):
     drawGrid(app, canvas)
     app.player.render(canvas)
+    drawMobs(app, canvas)
     canvas.create_text(400, 100, text=f"ScrollX = {app.scrollX}")
     canvas.create_text(400, 200, text=f"ScrollY = {app.scrollY}")
     canvas.create_text(400, 150, text=f"On floor = {app.player.isOnFloor()}")

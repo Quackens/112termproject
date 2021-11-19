@@ -130,53 +130,34 @@ class Bat(Player):
         return neighbours
 
 # TODO:
-    def tracepath(self, graph, startNode, targetNode):
-        # go through each key's dictionary and find the target node
-        path = []
-        for node in graph.table:
-                if targetNode in graph.table[node]:
-                    path.append(node)
-                    targetNode = node
+    def tracePath(self, graph, startNode, targetNode):
+        pass
+
+
+
         
-        while (targetNode != startNode):
-            
-            
-            # Keep going back until the targetNode hits startNode, then return reversed list
-                if targetNode in graph.table[node]:
-                    path.append(node)
-                    targetNode = node
-        path.append(startNode)
-        path.reverse()
-        return path
-
-
-    def generatePath(self):
-        startRow, startCol = self.getPlayerBounds()
+    # Generates graph to use for pathfinding
+    def generateGraph(self):
+        startRow, startCol = GetBounds.RowCol(self.app, self.playerX, self.playerY)
         targetRow, targetCol = GetBounds.RowCol(self.app, self.app.playerX, self.app.playerY)
-        path = Graph()
         queue = [(startRow, startCol)]
+        graph = Graph()
         visited = set()
-        passes = 0
+        
+        # Also set a limit to how far of blocks the graph is generated
+        limitRow, limitCol = 30, 50
+
         while len(queue) != 0:
             currRow, currCol = queue.pop(0)
-            if (currRow, currCol) in visited:
-                continue
-            elif (neighbour[0], neighbour[1]) == (targetRow, targetCol):
-                    return self.tracePath(path, (startRow, startCol), (targetRow, targetCol))
-            
+            if (currRow, currCol) == (targetRow, targetCol):
+
+            neighbours = self.getNeighbouringBlocks(currRow, currCol)
             neighbours = self.getNeighbouringBlocks(currRow, currCol)
             for neighbour in neighbours:
-                if neighbour not in visited:
-                    path.addEdge((startRow, startCol), neighbour)
+                if neighbour not in visited and neighbour:               
+                    graph.addEdge((currRow, currCol), neighbour)
                     queue.append(neighbour)
-            passes += 1
-            print(path) # for testing
-            if passes == 100:
-                break
-        
                     
-
-
 
 # Keep a set of all vertices that are visited, initially empty
 # Have a queue of unvisited neighbors (initially just the start node)
@@ -202,26 +183,52 @@ class Bat(Player):
 
 # NB: since the player is always moving, update the pathfinding every few 'ticks' to set a new path
 
-# Taken from the mini lecture powerpoint
+# # Bad code
+#     def generatePath(self):
+#         startRow, startCol = self.getPlayerBounds()
+#         targetRow, targetCol = GetBounds.RowCol(self.app, self.app.playerX, self.app.playerY)
+#         path = Graph()
+#         queue = [(startRow, startCol)]
+#         visited = set()
+#         passes = 0
+#         while len(queue) != 0:
+#             currRow, currCol = queue.pop(0)
+#             if (currRow, currCol) in visited:
+#                 continue
+#             elif (neighbour[0], neighbour[1]) == (targetRow, targetCol):
+#                     return self.tracePath(path, (startRow, startCol), (targetRow, targetCol))
+            
+#             neighbours = self.getNeighbouringBlocks(currRow, currCol)
+#             for neighbour in neighbours:
+#                 if neighbour not in visited:
+#                     path.addEdge((startRow, startCol), neighbour)
+#                     queue.append(neighbour)
+#             passes += 1
+#             print(path) # for testing
+#             if passes == 100:
+#                 break
+
+
+
+# Inspired by grpah mini lecture, made changes of own for BFS
 class Graph(object):
     def __init__(self):
         self.table = dict()
     
-    def addEdge(self, nodeA, nodeB, weight=1):
+    # Directional: nodeA --visits--> nodeB
+    # When nodeB is visited from nodeA, nodeB points to nodeA
+    def addEdge(self, nodeA, nodeB):
         if nodeA not in self.table:
             self.table[nodeA] = {}
         if nodeB not in self.table:
             self.table[nodeB] = {}
+        self.table[nodeB] = nodeA
 
-        # Not used for BFS
-        self.table[nodeA][nodeB] = weight
-        self.table[nodeA][nodeB] = weight
-
-    def getEdge(self, nodeA, nodeB):
-        return self.table[nodeA][nodeB]
+    # def getEdge(self, nodeA, nodeB):
+    #     return self.table[nodeA][nodeB]
     
-    def getNodes(self):
-        return list(self.table)
+    # def getNodes(self):
+    #     return list(self.table)
     
-    def getNeighbours(self, node):
-        return set(self.table[node])
+    # def getNeighbours(self, node):
+    #     return set(self.table[node])

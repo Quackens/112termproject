@@ -1,7 +1,6 @@
 from entities import *
 import random
 
-
 # Generates a chunk
 def genChunk(app, rows, cols):
     chunk = [[]*cols for row in range(rows)]
@@ -94,11 +93,13 @@ def caveGen(rows, cols):
         prevGrid = newGrid
     return newGrid
         
-    
+# TODO: (IDea): start off with solid TRUE blocks when initializing array
 
 # Research
 # https://www.reddit.com/r/proceduralgeneration/comments/3yh2ze/terraria_cave_generation/
 
-# elliston is cool
+# Grass level generation: sine + cos waves, noise 
+# HIgh frequency = low amplitude and vice versa
+
 
 
