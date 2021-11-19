@@ -3,6 +3,7 @@ from entities import *
 from physics import *
 from worldgen import *
 from player import *
+from game import *
 
 def appStarted(app):
     app.cols = 100
@@ -13,6 +14,8 @@ def appStarted(app):
     app.scrollX = 0
     app.scrollY = 0
     app.timerDelay = 10
+    app.mobs = [spawnBat(app, 100, 100)]
+
 
 # Movement
 def keyPressed(app, event):
@@ -31,13 +34,16 @@ def keyPressed(app, event):
 def mousePressed(app, event):
     x, y = event.x, event.y
     app.player.breakBlock(x, y)
+    for mob in app.mobs:
+        mob.takeStep()
 
 def timerFired(app):
     app.player.gravity()
 
 # TODO:
 def drawMobs(app, canvas):
-    pass
+    for mob in app.mobs:
+        mob.render(canvas)
 
 # calculate what is needed to be draw on screen at a time, and then pass these row col parameters into the nested loops
 def drawGrid(app, canvas):
