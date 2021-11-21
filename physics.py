@@ -1,5 +1,6 @@
 # Gravity and Physics
 
+
 class Gravity(object):
     def __init__(self):
         self.gravity = 0.98

@@ -20,22 +20,24 @@ class Player(object):
         return (x0, y0, x1, y1)
    
     def movePlayerRight(self):
-        self.app.scrollX += 5
-        self.playerX += 5
+        if not self.isRightSideCollision():
+            self.app.scrollX += 5
+            self.playerX += 5
 
     def movePlayerLeft(self):
-        self.app.scrollX -= 5
-        self.playerX -= 5
+        if not self.isLeftSideCollision():
+            self.app.scrollX -= 5
+            self.playerX -= 5
 
     def jumpPlayer(self):
         if self.isOnFloor():
             self.app.scrollY -= 30
             self.playerY -= 30
 
+# For testing purposes
     def down(self):
         self.app.scrollY += 40
         self.playerY += 40
-
     def FLY(self):
         self.app.scrollY -= 30
         self.playerY -= 30
@@ -72,14 +74,40 @@ class Player(object):
             return False
     
     # TODO: Side collisions with blocks
-    def leftSideCollision(self):
-        pass
 
-    def rightSideCollision(self):
-        pass
+    # If colliding with blocks, return True
+    def isLeftSideCollision(self):
+        (x0, y0, x1, y1) = self.getPlayerBounds()
+        c1row, c1col = GetBounds.RowCol(self.app, x0 - 0.05, y0 + 0.05)   # top left side
+        c2row, c2col = GetBounds.RowCol(self.app, x0 - 0.05, y1 - 0.05)   # bottom left side
+        block1 = self.currChunk[c1row][c1col]
+        block2 = self.currChunk[c2row][c2col]
+        (b1x0, b1y0, b1x1, b1y1) = block1.getBlockBounds()
+        (b2x0, b2y0, b2x1, b2y1) = block2.getBlockBounds()
 
-    def headCollision(self):
-        pass
+        if (not isinstance(block1, AirBlock) and b1x1 == x0) or (not isinstance(block2, AirBlock) and b2x1 == x0):
+            return True
+        else:
+            return False
+    
+
+    def isRightSideCollision(self):
+        (x0, y0, x1, y1) = self.getPlayerBounds()
+        c1row, c1col = GetBounds.RowCol(self.app, x1+0.05, y0 + 0.05)   # top right side
+        c2row, c2col = GetBounds.RowCol(self.app, x1+0.05, y1 - 0.05)   # bottom right side
+        block1 = self.currChunk[c1row][c1col]
+        block2 = self.currChunk[c2row][c2col]
+        (b1x0, b1y0, b1x1, b1y1) = block1.getBlockBounds()
+        (b2x0, b2y0, b2x1, b2y1) = block2.getBlockBounds()
+        if (not isinstance(block1, AirBlock) and b1x0 == x1) or (not isinstance(block2, AirBlock) and b2x0 == x1):
+            return True
+        else:
+            return False
+
+    def isHeadCollision(self):
+        (x0, y0, x1, y1) = self.getPlayerBounds()
+        c1row, c1col = GetBounds.RowCol(self.app, x0 + 0.05, y0)
+        c2row, c2col = GetBounds.RowCol(self.app, x1 - 0.05, y0)
 
     # Makes the player fall as long as their feet are touching air block
     def gravity(self):
@@ -176,14 +204,14 @@ class Bat(Player):
                     and abs(neighbour[1] - startCol) < limitCol):
                     queue.append(neighbour)
                     graph.addEdge((currRow, currCol), neighbour) #A = currNode, B = neigihbourNode
-            i += 1
-            if i == 100000:
-                return "Infinite loop"
-        print("done")
+        #     i += 1
+        #     if i == 100000:
+        #         return "Infinite loop"
+        # print("done")
 
-                    
-        # Otherwise, there is no path to the player, idle
         # TODO: make the mob idle
+        # # Otherwise, there is no path to the player, idle
+        
 
     # TODO: make mob move towards player at each tick or something
     def takeStep(self):
@@ -201,13 +229,6 @@ class Bat(Player):
 # If they are unvisited, add them to the end of the queue
 # Repeat 3-7 until the queue is empty
 # This is typically not done with recursion
-
-# Simple zombie pathfinding:
-# if a shortest path exist to the player, then take it
-# paths that dont qualify include blocks that are more than 2 high (cant jump over) and also ones that have 5+ blocks of falling
-# otherwise, stand on the block closest to the player
-# 1. generate the graph with nodes = airblocks with solid block below or two blocks beneath
-
 
 # EASY: MAKE a 'bird' that flies to the player
 # Treat all air blocks as nodes
@@ -227,3 +248,9 @@ class Graph(object):
         if nodeB not in self.table:
             self.table[nodeB] = {}
         self.table[nodeB] = nodeA
+
+# Simple zombie pathfinding:
+# if a shortest path exist to the player, then take it
+# paths that dont qualify include blocks that are more than 2 high (cant jump over) and also ones that have 5+ blocks of falling
+# otherwise, stand on the block closest to the player
+# 1. generate the graph with nodes = airblocks with solid block below or two blocks beneath

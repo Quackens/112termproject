@@ -66,5 +66,5 @@ def redrawAll(app, canvas):
     canvas.create_text(400, 100, text=f"ScrollX = {app.scrollX}")
     canvas.create_text(400, 200, text=f"ScrollY = {app.scrollY}")
     canvas.create_text(400, 150, text=f"On floor = {app.player.isOnFloor()}")
-
+    # canvas.create_text(400, 250, text=f"Left Collide = {app.player.isLeftSideCollision()}")
 runApp(width=1400, height=800)
