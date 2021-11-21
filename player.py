@@ -1,4 +1,5 @@
 from entities import *
+import copy
 
 # Player class
 class Player(object):
@@ -9,9 +10,13 @@ class Player(object):
         self.playerLen = app.blockLen * 2
         self.playerWidth = app.blockLen
         self.currChunk = chunk 
-        self.isJumping = False
         self.dx = 0
         self.dy = 0
+        self.g = 1
+
+        # player inventory
+        self.inventory = dict()
+        self.selectedBlock = DirtBlock(self.app)
     
     # Returns the absolute bounds of the player
     def getPlayerBounds(self):
@@ -19,21 +24,37 @@ class Player(object):
         x1, y1 = self.playerX + self.playerWidth/2, self.playerY+ self.playerLen/2
         return (x0, y0, x1, y1)
    
-    def movePlayerRight(self):
-        if not self.isRightSideCollision():
-            self.app.scrollX += 5
-            self.playerX += 5
+    # def movePlayerRight(self):
+    #     if not self.isRightSideCollision():
+    #         self.app.scrollX += 5
+    #         self.playerX += 5
 
-    def movePlayerLeft(self):
-        if not self.isLeftSideCollision():
-            self.app.scrollX -= 5
-            self.playerX -= 5
+    # def movePlayerLeft(self):
+    #     if not self.isLeftSideCollision():
+    #         self.app.scrollX -= 5
+    #         self.playerX -= 5
+
+    def movePlayerRight(self, press):
+        if not self.isRightSideCollision() and press:
+            self.dx = 2
+            # self.playerX += self.dx
+            # self.app.scrollX += self.dx
+            self.app.player.changeX()
+        else:
+            self.dx = 0
+        
+    def movePlayerLeft(self, press):
+        if not self.isLeftSideCollision() and press:
+            self.dx = -2
+            # self.playerX += self.dx
+            # self.app.scrollX += self.dx
+            self.app.player.changeX()
+        else:
+            self.dx = 0
 
     def jumpPlayer(self):
         if self.isOnFloor():
-            self.app.scrollY -= 30
-            self.playerY -= 30
-
+            self.dy = -7
 # For testing purposes
     def down(self):
         self.app.scrollY += 40
@@ -70,16 +91,34 @@ class Player(object):
         
         if (not isinstance(block1, AirBlock) and b1y0 == y1) or (not isinstance(block2, AirBlock) and b2y0 == y1):
             return True
+        elif (not isinstance(block1, AirBlock) and b1y0 < y1 < b1y1) or (not isinstance(block2, AirBlock) and b2y0 < y1 < b2y1):
+            self.adjustHeight(y1, b1y0)
+            return True 
         else:
             return False
     
+    def adjustHeight(self, posY, blockY):
+        adjustY = blockY - posY # Going to be negative since posY > blockY
+        self.playerY += adjustY
+        self.app.scrollY += adjustY
+    
+    def adjustLeft(self, posX, blockX):
+        adjustX = blockX - posX # posX < blockX
+        self.playerX += adjustX
+        self.app.scrollX += adjustX
+
+    def adjustRight(self, posX, blockX):
+        adjustX = blockX - posX # posX > blockX
+        self.playerX += adjustX
+        self.app.scrollX += adjustX
+
     # TODO: Side collisions with blocks
 
     # If colliding with blocks, return True
     def isLeftSideCollision(self):
         (x0, y0, x1, y1) = self.getPlayerBounds()
-        c1row, c1col = GetBounds.RowCol(self.app, x0 - 0.05, y0 + 0.05)   # top left side
-        c2row, c2col = GetBounds.RowCol(self.app, x0 - 0.05, y1 - 0.05)   # bottom left side
+        c1row, c1col = GetBounds.RowCol(self.app, x0 - 0.2, y0 + 0.05)   # top left side
+        c2row, c2col = GetBounds.RowCol(self.app, x0 - 0.2, y1 - 0.05)   # bottom left side
         block1 = self.currChunk[c1row][c1col]
         block2 = self.currChunk[c2row][c2col]
         (b1x0, b1y0, b1x1, b1y1) = block1.getBlockBounds()
@@ -87,19 +126,24 @@ class Player(object):
 
         if (not isinstance(block1, AirBlock) and b1x1 == x0) or (not isinstance(block2, AirBlock) and b2x1 == x0):
             return True
+        elif (not isinstance(block1, AirBlock) and b1x0 < x0 < b1x1) or (not isinstance(block2, AirBlock) and b2x0 < x0 < b2x1):
+            self.adjustLeft(x0, b1x1)
+            return True
         else:
             return False
     
-
     def isRightSideCollision(self):
         (x0, y0, x1, y1) = self.getPlayerBounds()
-        c1row, c1col = GetBounds.RowCol(self.app, x1+0.05, y0 + 0.05)   # top right side
-        c2row, c2col = GetBounds.RowCol(self.app, x1+0.05, y1 - 0.05)   # bottom right side
+        c1row, c1col = GetBounds.RowCol(self.app, x1+0.2, y0 + 0.05)   # top right side
+        c2row, c2col = GetBounds.RowCol(self.app, x1+0.2, y1 - 0.05)   # bottom right side
         block1 = self.currChunk[c1row][c1col]
         block2 = self.currChunk[c2row][c2col]
         (b1x0, b1y0, b1x1, b1y1) = block1.getBlockBounds()
         (b2x0, b2y0, b2x1, b2y1) = block2.getBlockBounds()
         if (not isinstance(block1, AirBlock) and b1x0 == x1) or (not isinstance(block2, AirBlock) and b2x0 == x1):
+            return True
+        elif (not isinstance(block1, AirBlock) and b1x0 < x1 < b1x1) or (not isinstance(block2, AirBlock) and b2x0 < x1 < b2x1):
+            self.adjustRight(x1, b1x0)
             return True
         else:
             return False
@@ -109,148 +153,79 @@ class Player(object):
         c1row, c1col = GetBounds.RowCol(self.app, x0 + 0.05, y0)
         c2row, c2col = GetBounds.RowCol(self.app, x1 - 0.05, y0)
 
-    # Makes the player fall as long as their feet are touching air block
-    def gravity(self):
-        if (not self.isOnFloor()):
-            self.app.scrollY += 2
-            self.playerY += 2
+    # returns whether block is adjacent to non airblock: block can be placed
+    def adjacentToBlock(self, row, col):
+        for drow, dcol in [(1,0), (0,1), (-1,0), (0,-1)]:
+            if not isinstance(self.currChunk[drow+row][dcol+col], AirBlock):
+                return True
+        return False
 
     # when clicked, break the block that is clicked
+    # And also add a block to inventory
     def breakBlock(self, x, y):
         row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
         if not isinstance(self.currChunk[row][col], AirBlock):
+            blockType = str(self.currChunk[row][col])
             oldBlock = self.currChunk[row][col]
             self.app.grid[row][col] = AirBlock(self.app, oldBlock.row, oldBlock.col)
+            # Add it to inventory
+            if blockType in self.inventory:
+                self.inventory[blockType] += 1
+            else:
+                self.inventory[blockType] = 1
 
     # TODO: place blocks
     # How to configure ismousepressed right click? differentiate from left click
-
-# Class for bats (flying things that attack you)
-# Since inheriting from player, just pretend mobs are player entities too
-class Bat(Player):
-    def __init__(self, app, chunk, posX, posY):
-        super().__init__(app, chunk)
-        self.playerX = posX
-        self.playerY = posY
-        self.playerLen = self.app.blockLen
-        self.playerWidth = self.app.blockLen
-    
-    def render(self, canvas):
-        x, y = self.playerX, self.playerY
-        x0 = x-(self.playerWidth/2) - self.app.scrollX
-        y0 = y-(self.playerLen/2) - self.app.scrollY
-        x1 = x+(self.playerWidth/2) - self.app.scrollX
-        y1 = y+(self.playerLen/2) - self.app.scrollY
-        canvas.create_rectangle(x0, y0, x1, y1, fill='Lime')
-
-# VVVVVV BFS PATHFINDING ALGORITHM VVVVVVV
-# NB: since the player is always moving, update the pathfinding every few 'ticks' to set a new path
-    
-    # Returns whether the bat is close to the player (within a block radius of the player)
-    def nearPlayer(self, mobRow, mobCol):
-        playerRow, playerCol = GetBounds.RowCol(self.app, self.app.player.playerX, self.app.player.playerY)
-        # For now, nearPlayer returns TRUE if the bat is adjacent to the player within cell coordinates
-        if abs(playerRow - mobRow) == 1 and abs(playerCol - mobCol) == 1:
-            return True
-        else:
-            return False
-
-    # Return adjacent cells
-    def getNeighbouringBlocks(self, row, col):
-        neighbours = []
-        for (drow, dcol) in [(0, 1), (1, 0), (-1, 0), (0, -1)]:
-        # for drow in range(-1, 2):
-        #     for dcol in range(-1, 2):
-            if drow == 0 and dcol == 0:
-                continue
-            if isinstance(self.app.grid[row+drow][col+dcol], AirBlock):
-                neighbours.append((row+drow, col+dcol))
-        return neighbours
-
-    # Traces back the path given a dictionary that has start - target path
-    def tracePath(self, graph, startNode, targetNode):
-        print(startNode, targetNode)
-        # print(GetBounds.RowCol(self.app, self.app.player.playerX, self.app.player.playerY))
-        path = []
-        while targetNode != startNode:
-            path.insert(0, targetNode)
-            targetNode = graph.table[targetNode]
-        return path
-
-    # Generates graph to use for pathfinding
-    def generateGraph(self):
-        startRow, startCol = GetBounds.RowCol(self.app, self.playerX, self.playerY)
-        queue = [(startRow, startCol)]
-        graph = Graph()
-        graph.addEdge(None, (startRow, startCol))
-        visited = set()
-        i = 0
-        # Also set a limit to how far of blocks the graph is generated
-        limitRow, limitCol = 100, 100
-        
-        while len(queue) != 0:
-            currRow, currCol = queue.pop(0)
-            if (currRow, currCol) in visited:
-                continue
-            visited.add((currRow, currCol))
+    def placeBlock(self, x, y):
+        row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
+        if self.adjacentToBlock(row, col):
+            self.selectedBlock.row = row
+            self.selectedBlock.col = col
+            # newBlock = copy.deepcopy(self.selectedBlock)
+            self.app.grid[row][col] = self.selectedBlock
             
-            # If the target node is reached, trace back and return the list of nodes to take
-            if self.nearPlayer(currRow, currCol):
-                return self.tracePath(graph, (startRow, startCol), (currRow, currCol))
 
-            neighbours = self.getNeighbouringBlocks(currRow, currCol)
-            for neighbour in neighbours:
-                if (neighbour not in visited and abs(neighbour[0] - startRow) < limitRow
-                    and abs(neighbour[1] - startCol) < limitCol):
-                    queue.append(neighbour)
-                    graph.addEdge((currRow, currCol), neighbour) #A = currNode, B = neigihbourNode
-        #     i += 1
-        #     if i == 100000:
-        #         return "Infinite loop"
-        # print("done")
 
-        # TODO: make the mob idle
-        # # Otherwise, there is no path to the player, idle
+
+
+    # Makes the player fall as long as their feet are touching air block
+    # def gravity(self):
+    #     if (not self.isOnFloor()):
+    #         self.app.scrollY += 2
+    #         self.playerY += 2
+
+    def changeY(self):
+        # print("here")
+        self.app.scrollY += self.dy
+        self.playerY += self.dy
+
+        if not self.isOnFloor():
+            self.dy += self.g
+        else:
+            self.dy = 0
+    
+    def changeX(self):
+        self.playerX += self.dx
+        self.app.scrollX += self.dx
+        
+        
         
 
-    # TODO: make mob move towards player at each tick or something
-    def takeStep(self):
-        path = self.generateGraph()
-        # Update self.playerX and self.playerY
-        print(path)
 
+            
+# Pseudocode for physics
+# app.x
+# app.y
+# app.dx
+# app.dy
+# app.gravity - 0.98
 
-# Keep a set of all vertices that are visited, initially empty
-# Have a queue of unvisited neighbors (initially just the start node)
-# Extract the current node from the front of the queue
-# Skip if the current node has already been visited, otherwise mark it as visited
-# Stop if the current node = the target node
-# Loop over the neighbors of the current node
-# If they are unvisited, add them to the end of the queue
-# Repeat 3-7 until the queue is empty
-# This is typically not done with recursion
+# def jump(app):
+#     app.dy = -3
 
-# EASY: MAKE a 'bird' that flies to the player
-# Treat all air blocks as nodes
-# Adjacent nodes are air blocks that are NSEW to the central block
+# def timerfired(app):
+#     app.x += app.dx
+#     app.y += app.dy
 
-
-# Inspired by grpah mini lecture, made changes of own for BFS
-class Graph(object):
-    def __init__(self):
-        self.table = dict()
-    
-    # Directional: nodeA --visits--> nodeB
-    # When nodeB is visited from nodeA, nodeB points to nodeA
-    def addEdge(self, nodeA, nodeB):
-        if nodeA not in self.table:
-            self.table[nodeA] = {}
-        if nodeB not in self.table:
-            self.table[nodeB] = {}
-        self.table[nodeB] = nodeA
-
-# Simple zombie pathfinding:
-# if a shortest path exist to the player, then take it
-# paths that dont qualify include blocks that are more than 2 high (cant jump over) and also ones that have 5+ blocks of falling
-# otherwise, stand on the block closest to the player
-# 1. generate the graph with nodes = airblocks with solid block below or two blocks beneath
+#     if notColliding(app):
+#         app.dy += app.gravity

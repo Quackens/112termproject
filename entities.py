@@ -1,5 +1,4 @@
 from cmu_112_graphics import *
-from physics import *
 
 
 class GetBounds(object):
@@ -21,7 +20,7 @@ class GetBounds(object):
 
 # Blocks
 class Block(object):
-    def __init__(self, app, row, col):
+    def __init__(self, app, row=0, col=0):
         self.row = row
         self.col = col
         self.app = app
@@ -40,7 +39,7 @@ class Block(object):
         return GetBounds.Cell(self.app, self.row, self.col)
 
 class GrassBlock(Block):
-    def __init__(self, app, row, col):
+    def __init__(self, app, row=0, col=0):
         super().__init__(app, row, col)
         self.texture = "Green"
     
@@ -48,7 +47,7 @@ class GrassBlock(Block):
         return 'GrassBlock'
 
 class AirBlock(Block):
-    def __init__(self, app, row, col):
+    def __init__(self, app, row=0, col=0):
         super().__init__(app, row, col)
         self.texture = "White"
 
@@ -59,7 +58,7 @@ class AirBlock(Block):
         return 'AirBlock'
 
 class DirtBlock(Block):
-    def __init__(self, app, row, col):
+    def __init__(self, app, row=0, col=0):
         super().__init__(app, row, col)
         self.texture = "saddle brown"
 
@@ -67,7 +66,7 @@ class DirtBlock(Block):
         return 'DirtBlock'
 
 class StoneBlock(Block):
-    def __init__(self, app, row, col):
+    def __init__(self, app, row=0, col=0):
         super().__init__(app, row, col)
         self.texture = "Grey"
 
@@ -75,7 +74,7 @@ class StoneBlock(Block):
         return 'StoneBlock'
 
 class LogBlock(Block):
-    def __init__(self, app, row, col):
+    def __init__(self, app, row=0, col=0):
         super().__init__(app, row, col)
         self.texture = ""
 
@@ -83,7 +82,7 @@ class LogBlock(Block):
         return 'LogBlock'
 
 class LeafBlock(Block):
-    def __init__(self, app, row, col):
+    def __init__(self, app, row=0, col=0):
         super().__init__(app, row, col)
         self.texture = "Maroon"
 

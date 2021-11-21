@@ -261,6 +261,9 @@ class App(object):
     def timerFired(app): pass           # respond to timer events
     def sizeChanged(app): pass          # respond to window size changes
 
+    def leftMousePressed(app, event): pass
+    def rightMousePressed(app, event): pass
+
     ####################################
     # Implementation:
     ####################################
@@ -526,6 +529,36 @@ class App(object):
                 app._redrawAllWrapper()
 
     @_safeMethod
+    def _leftMousePressedWrapper(app, event):
+        if (not app._running) or app._paused: return
+        if ((event.x < 0) or (event.x > app.width) or
+            (event.y < 0) or (event.y > app.height)):
+            app._mousePressedOutsideWindow = True
+        else:
+            app._mousePressedOutsideWindow = False
+            app._mouseIsPressed = True
+            app._lastMousePosn = (event.x, event.y)
+            if (app._methodIsOverridden('leftMousePressed')):
+                event = App.MouseEventWrapper(event)
+                app.leftMousePressed(event)
+                app._redrawAllWrapper()
+
+    @_safeMethod
+    def _rightMousePressedWrapper(app, event):
+        if (not app._running) or app._paused: return
+        if ((event.x < 0) or (event.x > app.width) or
+            (event.y < 0) or (event.y > app.height)):
+            app._mousePressedOutsideWindow = True
+        else:
+            app._mousePressedOutsideWindow = False
+            app._mouseIsPressed = True
+            app._lastMousePosn = (event.x, event.y)
+            if (app._methodIsOverridden('rightMousePressed')):
+                event = App.MouseEventWrapper(event)
+                app.rightMousePressed(event)
+                app._redrawAllWrapper()   
+
+    @_safeMethod
     def _mouseReleasedWrapper(app, event):
         if (not app._running) or app._paused: return
         app._mouseIsPressed = False
@@ -622,6 +655,10 @@ class App(object):
             App._theRoot.protocol('WM_DELETE_WINDOW', lambda: App._theRoot.app.quit()) # when user presses 'x' in title bar
             App._theRoot.bind("<Button-1>", lambda event: App._theRoot.app._mousePressedWrapper(event))
             App._theRoot.bind("<B1-ButtonRelease>", lambda event: App._theRoot.app._mouseReleasedWrapper(event))
+
+            App._theRoot.bind("<Button-3>", lambda event: App._theRoot.app._mousePressedWrapper(event))
+            App._theRoot.bind("<Button-1>", lambda event: App._theRoot.app._mousePressedWrapper(event))
+
             App._theRoot.bind("<KeyPress>", lambda event: App._theRoot.app._keyPressedWrapper(event))
             App._theRoot.bind("<KeyRelease>", lambda event: App._theRoot.app._keyReleasedWrapper(event))
             App._theRoot.bind("<Configure>", lambda event: App._theRoot.app._sizeChangedWrapper(event))
@@ -687,6 +724,9 @@ class TopLevelApp(App):
     def mouseDragged(app, event): app._callFn('mouseDragged', app, event)
     def timerFired(app): app._callFn('timerFired', app)
     def sizeChanged(app): app._callFn('sizeChanged', app)
+
+    def leftMousePressed(app, event): app._callFn('leftMousePressed', app, event)
+    def rightMousePressed(app, event): app._callFn('rightMousePressed', app, event)
 
 ####################################
 # ModalApp + Mode:
