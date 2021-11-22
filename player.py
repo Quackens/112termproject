@@ -13,26 +13,17 @@ class Player(object):
         self.dx = 0
         self.dy = 0
         self.g = 1
-
-        # player inventory
         self.inventory = dict()
+        self.toolBar = ["DirtBlock", "StoneBlock", "GrassBlock", "LogBlock", "LeafBlock"]
         self.selectedBlock = DirtBlock(self.app)
+        self.mouseX = 0
+        self.mouseY = 0
     
     # Returns the absolute bounds of the player
     def getPlayerBounds(self):
         x0, y0 = self.playerX - self.playerWidth/2, self.playerY - self.playerLen/2
         x1, y1 = self.playerX + self.playerWidth/2, self.playerY+ self.playerLen/2
         return (x0, y0, x1, y1)
-   
-    # def movePlayerRight(self):
-    #     if not self.isRightSideCollision():
-    #         self.app.scrollX += 5
-    #         self.playerX += 5
-
-    # def movePlayerLeft(self):
-    #     if not self.isLeftSideCollision():
-    #         self.app.scrollX -= 5
-    #         self.playerX -= 5
 
     def movePlayerRight(self, press):
         if not self.isRightSideCollision() and press:
@@ -71,6 +62,18 @@ class Player(object):
         y = self.app.height//2
         canvas.create_rectangle(x-self.playerWidth/2, y-self.playerLen/2,
                                 x+self.playerWidth/2, y+self.playerLen/2, fill='Cyan')
+    def changeY(self):
+        self.app.scrollY += self.dy
+        self.playerY += self.dy
+
+        if not self.isOnFloor():
+            self.dy += self.g
+        else:
+            self.dy = 0
+    
+    def changeX(self):
+        self.playerX += self.dx
+        self.app.scrollX += self.dx
 
 # If the player's feet is On a grass block, then return True:
             # Get the player's bounds, look at the feet bound (x0+x1)/2 and y1
@@ -153,6 +156,31 @@ class Player(object):
         c1row, c1col = GetBounds.RowCol(self.app, x0 + 0.05, y0)
         c2row, c2col = GetBounds.RowCol(self.app, x1 - 0.05, y0)
 
+
+    # highlights block selected by player
+    def highlightBlock(self, canvas, x, y):
+        row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
+        if self.blockInRange(row, col) and not isinstance(self.currChunk[row][col], AirBlock):
+            x0, y0, x1, y1 = GetBounds.Cell(self.app, row, col)
+            x0 -= self.app.scrollX
+            x1 -= self.app.scrollX
+            y0 -= self.app.scrollY
+            y1 -= self.app.scrollY
+            canvas.create_rectangle(x0, y0, x1, y1, outline='red', width=5)
+    
+    # if block is in breaking distance of player
+    def blockInRange(self, row, col):
+        radius = 4
+        (px0, py0, px1, py1) = self.app.player.getPlayerBounds()
+        playerRow, playerCol = GetBounds.RowCol(self.app, px0 + self.app.blockLen/2, py0 + self.app.blockLen/2)
+        # print(abs(playerRow - row), abs(playerCol - col))
+        if abs(playerRow - row) < radius and abs(playerCol - col) < radius:
+            return True
+        else:
+            return False
+    
+
+
     # returns whether block is adjacent to non airblock: block can be placed
     def adjacentToBlock(self, row, col):
         for drow, dcol in [(1,0), (0,1), (-1,0), (0,-1)]:
@@ -164,7 +192,7 @@ class Player(object):
     # And also add a block to inventory
     def breakBlock(self, x, y):
         row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
-        if not isinstance(self.currChunk[row][col], AirBlock):
+        if not isinstance(self.currChunk[row][col], AirBlock) and self.blockInRange(row, col):
             blockType = str(self.currChunk[row][col])
             oldBlock = self.currChunk[row][col]
             self.app.grid[row][col] = AirBlock(self.app, oldBlock.row, oldBlock.col)
@@ -174,58 +202,33 @@ class Player(object):
             else:
                 self.inventory[blockType] = 1
 
+    def attackBlock(self, x, y):
+        attackRow, attackCol = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
+        i = 0
+        while i < len(self.app.mobs):
+            mob = self.app.mobs[i]
+            mobRow, mobCol = GetBounds.RowCol(self.app, mob.playerX, mob.playerY)
+            if (attackRow, attackCol) == (mobRow, mobCol):
+                self.app.mobs.pop(i)
+            else:
+                i += 1
+                
+
     # TODO: place blocks
     # How to configure ismousepressed right click? differentiate from left click
     def placeBlock(self, x, y):
         row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
-        if self.adjacentToBlock(row, col):
+        if str(self.selectedBlock) in self.inventory and self.adjacentToBlock(row, col) and self.inventory[str(self.selectedBlock)] > 0:
             self.selectedBlock.row = row
             self.selectedBlock.col = col
             newBlock = copy.copy(self.selectedBlock)
             self.app.grid[row][col] = newBlock
-            
+            if str(newBlock) in self.inventory and self.inventory[str(newBlock)] != 1:
+                self.inventory[str(newBlock)] -= 1
+            elif str(newBlock) in self.inventory and self.inventory[str(newBlock)] == 1:
+                self.inventory.pop(str(newBlock))
 
+    def switchTool(self, tool):
+        # print(f'{self.toolBar[tool - 1]}' + '.(self.app)')
+        self.selectedBlock = eval(f'{self.toolBar[tool - 1]}' + '(self.app)')
 
-
-
-    # Makes the player fall as long as their feet are touching air block
-    # def gravity(self):
-    #     if (not self.isOnFloor()):
-    #         self.app.scrollY += 2
-    #         self.playerY += 2
-
-    def changeY(self):
-        # print("here")
-        self.app.scrollY += self.dy
-        self.playerY += self.dy
-
-        if not self.isOnFloor():
-            self.dy += self.g
-        else:
-            self.dy = 0
-    
-    def changeX(self):
-        self.playerX += self.dx
-        self.app.scrollX += self.dx
-        
-        
-        
-
-
-            
-# Pseudocode for physics
-# app.x
-# app.y
-# app.dx
-# app.dy
-# app.gravity - 0.98
-
-# def jump(app):
-#     app.dy = -3
-
-# def timerfired(app):
-#     app.x += app.dx
-#     app.y += app.dy
-
-#     if notColliding(app):
-#         app.dy += app.gravity

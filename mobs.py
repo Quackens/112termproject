@@ -81,16 +81,8 @@ class Bat(Player):
                 if (neighbour not in visited and abs(neighbour[0] - startRow) < limitRow
                     and abs(neighbour[1] - startCol) < limitCol):
                     queue.append(neighbour)
-                    graph.addEdge((currRow, currCol), neighbour) #A = currNode, B = neigihbourNode
-        #     i += 1
-        #     if i == 100000:
-        #         return "Infinite loop"
-        # print("done")
-
-        # TODO: make the mob idle
-        # # Otherwise, there is no path to the player, idle
+                    graph.addEdge((currRow, currCol), neighbour)
         
-
     # TODO: make mob move towards player at each tick or something
     def getC(self, row, col):
         x0, y0, x1, y1 = GetBounds.Cell(self.app, row, col)
@@ -105,7 +97,6 @@ class Bat(Player):
             cx, cy = self.getC(row, col)
             self.playerX = cx
             self.playerY = cy
-        # print(path)
 
 
 # Keep a set of all vertices that are visited, initially empty

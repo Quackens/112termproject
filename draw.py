@@ -18,7 +18,7 @@ def appStarted(app):
     app.scrollX = 0
     app.scrollY = 0
     app.timerDelay = 10
-    app.mobs = [spawnBat(app, 100, 100)]
+    app.mobs = []
     app.breakBlock = True
 
 
@@ -30,11 +30,11 @@ def keyPressed(app, event):
     if event.key == 's': app.player.down()
     # For testing purposes
     if event.key == 'Up': app.player.FLY()
-    if event.key == '1': app.player.switch1()
-    if event.key == '2': app.player.switch2()
-    if event.key == '3': app.player.switch3()
-    if event.key == '4': app.player.switch4()
-    if event.key == '5': app.player.switch5()
+    if event.key == '1': app.player.switchTool(1)
+    if event.key == '2': app.player.switchTool(2)
+    if event.key == '3': app.player.switchTool(3)
+    if event.key == '4': app.player.switchTool(4)
+    if event.key == '5': app.player.switchTool(5)
 
 def keyReleased(app, event):
     if event.key == "d":
@@ -45,17 +45,24 @@ def keyReleased(app, event):
 def leftMousePressed(app, event):
     x, y = event.x, event.y
     app.player.breakBlock(x, y)
+    app.player.attackBlock(x, y)
 
 def rightMousePressed(app, event):
     x, y = event.x, event.y
     app.player.placeBlock(x, y)
 
+def mouseMoved(app, event):
+    app.player.mouseX = event.x
+    app.player.mouseY = event.y
+
 def timerFired(app):
     app.player.changeY()
     app.player.changeX()
     # app.player.gravity()
+    mobGenerator(app)
     for mob in app.mobs:
         mob.takeStep()
+    
 
 # TODO:
 def drawMobs(app, canvas):
@@ -80,9 +87,10 @@ def drawGrid(app, canvas):
 def redrawAll(app, canvas):
     drawGrid(app, canvas)
     app.player.render(canvas)
+    app.player.highlightBlock(canvas, app.player.mouseX, app.player.mouseY)
     drawMobs(app, canvas)
-    canvas.create_text(400, 100, text=f"Breaking Block = {app.breakBlock}")
-    canvas.create_text(400, 200, text=f"ScrollY = {app.scrollY}")
+    canvas.create_text(400, 100, text=f"Selected Block = {app.player.selectedBlock}")
+    canvas.create_text(400, 200, text=f"Inventory = {app.player.inventory}")
     canvas.create_text(400, 150, text=f"On floor = {app.player.isOnFloor()}")
     canvas.create_text(400, 250, text=f"dx, dy = {app.player.dx, app.player.dy}")
 runApp(width=1400, height=800)
