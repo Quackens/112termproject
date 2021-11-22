@@ -5,6 +5,10 @@ from player import *
 from game import *
 from mobs import *
 
+#########################################################################
+# NOTE: cmu_112_graphics file used is MODIFIED to include distinct left #
+# and right mouse button presses (for break and place block mechanisms) #
+#########################################################################
 def appStarted(app):
     app.cols = 100
     app.rows = 100
@@ -20,20 +24,17 @@ def appStarted(app):
 
 # Movement
 def keyPressed(app, event):
-    if event.key == "d":
-        app.player.movePlayerRight(True)
-    if event.key == "a":
-        app.player.movePlayerLeft(True)
-    if event.key == "w":
-        app.player.jumpPlayer()
-    if event.key == 's':
-        app.player.down()
+    if event.key == "d": app.player.movePlayerRight(True)
+    if event.key == "a": app.player.movePlayerLeft(True)
+    if event.key == "w": app.player.jumpPlayer()
+    if event.key == 's': app.player.down()
     # For testing purposes
-    if event.key == 'Up':
-        app.player.FLY()
-
-    if event.key == 'q':
-        app.breakBlock = not app.breakBlock
+    if event.key == 'Up': app.player.FLY()
+    if event.key == '1': app.player.switch1()
+    if event.key == '2': app.player.switch2()
+    if event.key == '3': app.player.switch3()
+    if event.key == '4': app.player.switch4()
+    if event.key == '5': app.player.switch5()
 
 def keyReleased(app, event):
     if event.key == "d":
@@ -41,21 +42,13 @@ def keyReleased(app, event):
     if event.key == "a":
         app.player.movePlayerLeft(False)
     
-def mousePressed(app, event):
+def leftMousePressed(app, event):
     x, y = event.x, event.y
-    if app.breakBlock:
-        app.player.breakBlock(x, y)
-    else:
-        app.player.placeBlock(x, y)
-    
+    app.player.breakBlock(x, y)
 
-# def leftMousePressed(app, event):
-#     x, y = event.x, event.y
-#     print(f"{x, y}")
-
-# def rightMousePressed(app, event):
-#     x, y = event.x, event.y
-#     print(f"{x, y}")
+def rightMousePressed(app, event):
+    x, y = event.x, event.y
+    app.player.placeBlock(x, y)
 
 def timerFired(app):
     app.player.changeY()

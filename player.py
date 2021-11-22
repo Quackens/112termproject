@@ -181,8 +181,8 @@ class Player(object):
         if self.adjacentToBlock(row, col):
             self.selectedBlock.row = row
             self.selectedBlock.col = col
-            # newBlock = copy.deepcopy(self.selectedBlock)
-            self.app.grid[row][col] = self.selectedBlock
+            newBlock = copy.copy(self.selectedBlock)
+            self.app.grid[row][col] = newBlock
             
 
 

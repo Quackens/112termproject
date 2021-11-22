@@ -656,8 +656,8 @@ class App(object):
             App._theRoot.bind("<Button-1>", lambda event: App._theRoot.app._mousePressedWrapper(event))
             App._theRoot.bind("<B1-ButtonRelease>", lambda event: App._theRoot.app._mouseReleasedWrapper(event))
 
-            App._theRoot.bind("<Button-3>", lambda event: App._theRoot.app._mousePressedWrapper(event))
-            App._theRoot.bind("<Button-1>", lambda event: App._theRoot.app._mousePressedWrapper(event))
+            App._theRoot.bind("<Button-3>", lambda event: App._theRoot.app._rightMousePressedWrapper(event))
+            App._theRoot.bind("<Button-1>", lambda event: App._theRoot.app._leftMousePressedWrapper(event))
 
             App._theRoot.bind("<KeyPress>", lambda event: App._theRoot.app._keyPressedWrapper(event))
             App._theRoot.bind("<KeyRelease>", lambda event: App._theRoot.app._keyReleasedWrapper(event))

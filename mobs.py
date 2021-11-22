@@ -13,14 +13,16 @@ class Bat(Player):
     
     def render(self, canvas):
         x, y = self.playerX, self.playerY
-        x0 = x-(self.playerWidth/2) - self.app.scrollX
-        y0 = y-(self.playerLen/2) - self.app.scrollY
-        x1 = x+(self.playerWidth/2) - self.app.scrollX
-        y1 = y+(self.playerLen/2) - self.app.scrollY
+        x0 = x - (self.playerWidth/2) - self.app.scrollX
+        y0 = y - (self.playerLen/2) - self.app.scrollY
+        x1 = x + (self.playerWidth/2) - self.app.scrollX
+        y1 = y + (self.playerLen/2) - self.app.scrollY
         canvas.create_rectangle(x0, y0, x1, y1, fill='Lime')
 
-# VVVVVV BFS PATHFINDING ALGORITHM VVVVVVV
-# NB: since the player is always moving, update the pathfinding every few 'ticks' to set a new path
+
+#############################
+# BFS PATHFINDING ALGORITHM #
+#############################
     
     # Returns whether the bat is close to the player (within a block radius of the player)
     def nearPlayer(self, mobRow, mobCol):
@@ -45,7 +47,7 @@ class Bat(Player):
 
     # Traces back the path given a dictionary that has start - target path
     def tracePath(self, graph, startNode, targetNode):
-        print(startNode, targetNode)
+        # print(startNode, targetNode)
         # print(GetBounds.RowCol(self.app, self.app.player.playerX, self.app.player.playerY))
         path = []
         while targetNode != startNode:
@@ -62,7 +64,7 @@ class Bat(Player):
         visited = set()
         i = 0
         # Also set a limit to how far of blocks the graph is generated
-        limitRow, limitCol = 20, 20
+        limitRow, limitCol = 50, 50
         
         while len(queue) != 0:
             currRow, currCol = queue.pop(0)
