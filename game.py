@@ -22,12 +22,6 @@ def mobGenerator(app):
 # TODO: save game mechanic?
     # Convert block information, inventory, player and mob posiiton into string using repr
     # then store string into a csv file
-
-def drawInventory(app, canvas):
-    inventory = app.player.inventory
-    toolbar = app.player.toolBar
-    for i in range(5):
-        pass
     
 
 

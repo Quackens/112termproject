@@ -98,6 +98,11 @@ class Bat(Player):
             self.playerX = cx
             self.playerY = cy
 
+    def inflictDamage(self):
+        currRow, currCol = GetBounds.RowCol(self.app, self.playerX, self.playerY)
+        if self.nearPlayer(currRow, currCol):
+            self.app.player.health -= 3
+
 
 # Keep a set of all vertices that are visited, initially empty
 # Have a queue of unvisited neighbors (initially just the start node)

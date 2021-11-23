@@ -13,11 +13,14 @@ class Player(object):
         self.dx = 0
         self.dy = 0
         self.g = 1
-        self.inventory = dict()
-        self.toolBar = ["DirtBlock", "StoneBlock", "GrassBlock", "LogBlock", "LeafBlock"]
-        self.selectedBlock = DirtBlock(self.app)
         self.mouseX = 0
         self.mouseY = 0
+        self.health = 100
+
+        # inventory variables
+        self.inventory = [[] for i in range(36)]
+        self.inventoryHold = []
+        self.selectedStack = 0
     
     # Returns the absolute bounds of the player
     def getPlayerBounds(self):
@@ -193,14 +196,12 @@ class Player(object):
     def breakBlock(self, x, y):
         row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
         if not isinstance(self.currChunk[row][col], AirBlock) and self.blockInRange(row, col):
-            blockType = str(self.currChunk[row][col])
             oldBlock = self.currChunk[row][col]
+            self.addBlock(oldBlock)
             self.app.grid[row][col] = AirBlock(self.app, oldBlock.row, oldBlock.col)
             # Add it to inventory
-            if blockType in self.inventory:
-                self.inventory[blockType] += 1
-            else:
-                self.inventory[blockType] = 1
+
+            
 
     def attackBlock(self, x, y):
         attackRow, attackCol = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
@@ -213,22 +214,49 @@ class Player(object):
             else:
                 i += 1
                 
+    # def placeBlock(self, x, y):
+    #     row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
+    #     if str(self.selectedBlock) in self.inventory and self.adjacentToBlock(row, col) and self.inventory[str(self.selectedBlock)] > 0:
+    #         self.selectedBlock.row = row
+    #         self.selectedBlock.col = col
+    #         newBlock = copy.copy(sel
+    # f.selectedBlock)
+    #         self.app.grid[row][col] = newBlock
+    #         if str(newBlock) in self.inventory and self.inventory[str(newBlock)] != 1:
+    #             self.inventory[str(newBlock)] -= 1
+    #         elif str(newBlock) in self.inventory and self.inventory[str(newBlock)] == 1:
+    #             self.inventory.pop(str(newBlock))
 
-    # TODO: place blocks
-    # How to configure ismousepressed right click? differentiate from left click
+    # def switchTool(self, tool):
+    #     self.selectedBlock = eval(f'{self.toolBar[tool - 1]}' + '(self.app)')
+
+
+
+
+
     def placeBlock(self, x, y):
         row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
-        if str(self.selectedBlock) in self.inventory and self.adjacentToBlock(row, col) and self.inventory[str(self.selectedBlock)] > 0:
-            self.selectedBlock.row = row
-            self.selectedBlock.col = col
-            newBlock = copy.copy(self.selectedBlock)
+        if self.inventory[self.selectedStack] != []:
+            newBlock = self.inventory[self.selectedStack].pop()
+            newBlock.row = row
+            newBlock.col = col
             self.app.grid[row][col] = newBlock
-            if str(newBlock) in self.inventory and self.inventory[str(newBlock)] != 1:
-                self.inventory[str(newBlock)] -= 1
-            elif str(newBlock) in self.inventory and self.inventory[str(newBlock)] == 1:
-                self.inventory.pop(str(newBlock))
 
+    # Inventory Management
+
+    # When breaking block, appends the block to the appropriate 'stack' in inventory
+    def addBlock(self, block):
+        for i in range(36):
+            if (not self.inventory[i] != []) or type(self.inventory[i][0]) == type(block):
+                self.inventory[i].append(block)
+                return
+        # Find the nearest empty list and add the new block in if no stack
+        for i in range(36):
+            if self.inventory[i] == []:
+                self.inventory[i].append(block)
+                
     def switchTool(self, tool):
-        # print(f'{self.toolBar[tool - 1]}' + '.(self.app)')
-        self.selectedBlock = eval(f'{self.toolBar[tool - 1]}' + '(self.app)')
+        self.selectedStack = tool - 1
 
+
+    
