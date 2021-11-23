@@ -60,7 +60,7 @@ class AirBlock(Block):
 class DirtBlock(Block):
     def __init__(self, app, row=0, col=0):
         super().__init__(app, row, col)
-        self.texture = "saddle brown"
+        self.texture = "Brown"
 
     def __repr__(self):
         return 'DirtBlock'

@@ -1,19 +1,28 @@
 from entities import *
 import random
+import math
+
+def topTerrainGenerator(x, y): #col is x, row is y
+    y = 4*math.sin(0.3*x)+0.3*math.cos(5*x)-3*math.sin(0.1*x)+10*math.sin(0.05*x)+0.1*math.sin(5*x)
+    return int(y) # col is going to be unaffected, ROW is going to be changed
 
 # Generates a chunk
 def genChunk(app, rows, cols):
     chunk = [[]*cols for row in range(rows)]
-    groundLevel = app.rows // 4
-
+    groundLevelBase = app.rows // 4
     cave = caveGen(rows, cols)
     for row in range(rows):
         for col in range(cols):
+            groundLevel = groundLevelBase + topTerrainGenerator(col, row)
             if row < groundLevel:
                 chunk[row].append(AirBlock(app, row, col))
             elif row == groundLevel:
                 chunk[row].append(GrassBlock(app, row, col))
-            elif row > groundLevel:
+            elif groundLevel < row < groundLevel+4:
+                chunk[row].append(DirtBlock(app, row, col))
+            elif groundLevel+4 <= row < groundLevel+random.randint(6, 10):
+                chunk[row].append(StoneBlock(app, row, col))
+            else:
                 if cave[row][col] == False:
                     chunk[row].append(AirBlock(app, row, col))
                 else:

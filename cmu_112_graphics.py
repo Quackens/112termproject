@@ -169,8 +169,9 @@ try: from PIL import Image, ImageTk, ImageDraw, ImageFont
 except ModuleNotFoundError: failedImport('PIL', 'pillow')
 
 if sys.platform.startswith('linux'):
-    try: import pyscreenshot as ImageGrabber
-    except ModuleNotFoundError: failedImport('pyscreenshot')
+    # try: import pyscreenshot as ImageGrabber
+    # except ModuleNotFoundError: failedImport('pyscreenshot')
+    pass
 else:
     try: from PIL import ImageGrab as ImageGrabber
     except ModuleNotFoundError: pass # Our PIL warning is already printed above
@@ -788,6 +789,6 @@ runApp = TopLevelApp
 
 print(f'Loaded cmu_112_graphics version {App.version} (last updated {App.lastUpdated})')
 
-if (__name__ == '__main__'):
-    try: import cmu_112_graphics_tests
-    except: pass
+# if (__name__ == '__main__'):
+#     try: import cmu_112_graphics_tests
+#     except: pass

@@ -84,7 +84,10 @@ def drawInventory(app, canvas):
                 item = str(app.player.inventory[index][0])
                 num = len(app.player.inventory[index])
                 canvas.create_text(x0 + cellWidth/2, y0+150+cellHeight/2, text=f"{item} {num}")
-    canvas.create_text(50, 50, text=f"{app.player.inventoryHold[0]}: {len(app.player.inventoryHold)}")
+    if app.player.inventoryHold != []:
+        canvas.create_text(50, 50, text=f"{app.player.inventoryHold[0]}: {len(app.player.inventoryHold)}")
+    else:
+        canvas.create_text(50, 50, text=f"Holding Nothing")
 
 # TODO: Make a crafting menu
 def drawCraftMenu(app, canvas):
