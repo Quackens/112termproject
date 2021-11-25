@@ -15,7 +15,7 @@ class Player(object):
         self.g = 1
         self.mouseX = 0
         self.mouseY = 0
-        self.health = 100
+        self.health = 1000
 
         # inventory variables
         self.inventory = [[] for i in range(36)]
@@ -28,6 +28,9 @@ class Player(object):
         x1, y1 = self.playerX + self.playerWidth/2, self.playerY+ self.playerLen/2
         return (x0, y0, x1, y1)
 
+####################
+# Movement
+####################
     def movePlayerRight(self, press):
         if not self.isRightSideCollision() and press:
             self.dx = 2
@@ -49,6 +52,7 @@ class Player(object):
     def jumpPlayer(self):
         if self.isOnFloor():
             self.dy = -7
+
 # For testing purposes
     def down(self):
         self.app.scrollY += 40
@@ -85,8 +89,6 @@ class Player(object):
                 # check surrounding + 1 blocks around the row col block
     def isOnFloor(self):
         (x0, y0, x1, y1) = self.getPlayerBounds()
-        # (feet level = y1)
-        # Get 2 row col for the lower block of player: one for each corner
         c1row, c1col = GetBounds.RowCol(self.app, x0 + 0.05, y1)
         c2row, c2col = GetBounds.RowCol(self.app, x1 - 0.05, y1)
 
@@ -160,6 +162,10 @@ class Player(object):
         c2row, c2col = GetBounds.RowCol(self.app, x1 - 0.05, y0)
 
 
+########################
+# Player Interactions
+########################
+
     # highlights block selected by player
     def highlightBlock(self, canvas, x, y):
         row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
@@ -175,15 +181,13 @@ class Player(object):
     def blockInRange(self, row, col):
         radius = 4
         (px0, py0, px1, py1) = self.app.player.getPlayerBounds()
-        playerRow, playerCol = GetBounds.RowCol(self.app, px0 + self.app.blockLen/2, py0 + self.app.blockLen/2)
+        playerRow, playerCol = GetBounds.RowCol(self.app, px0 + self.app.blockLen/2, py0 + self.app.blockLen)
         # print(abs(playerRow - row), abs(playerCol - col))
         if abs(playerRow - row) < radius and abs(playerCol - col) < radius:
             return True
         else:
             return False
     
-
-
     # returns whether block is adjacent to non airblock: block can be placed
     def adjacentToBlock(self, row, col):
         for drow, dcol in [(1,0), (0,1), (-1,0), (0,-1)]:
@@ -201,8 +205,6 @@ class Player(object):
             self.app.grid[row][col] = AirBlock(self.app, oldBlock.row, oldBlock.col)
             # Add it to inventory
 
-            
-
     def attackBlock(self, x, y):
         attackRow, attackCol = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
         i = 0
@@ -213,36 +215,19 @@ class Player(object):
                 self.app.mobs.pop(i)
             else:
                 i += 1
-                
-    # def placeBlock(self, x, y):
-    #     row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
-    #     if str(self.selectedBlock) in self.inventory and self.adjacentToBlock(row, col) and self.inventory[str(self.selectedBlock)] > 0:
-    #         self.selectedBlock.row = row
-    #         self.selectedBlock.col = col
-    #         newBlock = copy.copy(sel
-    # f.selectedBlock)
-    #         self.app.grid[row][col] = newBlock
-    #         if str(newBlock) in self.inventory and self.inventory[str(newBlock)] != 1:
-    #             self.inventory[str(newBlock)] -= 1
-    #         elif str(newBlock) in self.inventory and self.inventory[str(newBlock)] == 1:
-    #             self.inventory.pop(str(newBlock))
-
-    # def switchTool(self, tool):
-    #     self.selectedBlock = eval(f'{self.toolBar[tool - 1]}' + '(self.app)')
-
-
-
-
-
+            
     def placeBlock(self, x, y):
         row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
-        if self.inventory[self.selectedStack] != []:
+        if (self.inventory[self.selectedStack] != [] and self.blockInRange(row, col) 
+            and self.adjacentToBlock(row, col)):
             newBlock = self.inventory[self.selectedStack].pop()
             newBlock.row = row
             newBlock.col = col
             self.app.grid[row][col] = newBlock
 
-    # Inventory Management
+########################
+# Inventory Management
+########################
 
     # When breaking block, appends the block to the appropriate 'stack' in inventory
     def addBlock(self, block):

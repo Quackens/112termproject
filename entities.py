@@ -76,7 +76,7 @@ class StoneBlock(Block):
 class LogBlock(Block):
     def __init__(self, app, row=0, col=0):
         super().__init__(app, row, col)
-        self.texture = "Brown"
+        self.texture = "goldenrod4"
 
     def __repr__(self):
         return 'LogBlock'
@@ -84,7 +84,7 @@ class LogBlock(Block):
 class LeafBlock(Block):
     def __init__(self, app, row=0, col=0):
         super().__init__(app, row, col)
-        self.texture = "Maroon"
+        self.texture = "DarkOliveGreen2"
 
     def __repr__(self):
         return 'LeafBlock'

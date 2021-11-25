@@ -62,17 +62,21 @@ def gameMode_mouseMoved(app, event):
     app.player.mouseY = event.y
 
 def gameMode_timerFired(app):
+    app.timerCount += 1
     app.player.changeY()
     app.player.changeX()
-    # app.player.gravity()
+
     mobGenerator(app)
+    if app.timerCount % 10 == 0:
+        generateNewChunk(app)
+
     for mob in app.mobs:
-        mob.takeStep()
-        mob.inflictDamage()
+            mob.takeStep()
+            mob.inflictDamage()
+
     if app.player.health <= 0:
         app.mode = 'deathScreen'
-
-
+        
 def gameMode_redrawAll(app, canvas):
     drawGrid(app, canvas)
     app.player.render(canvas)
@@ -103,7 +107,6 @@ def craftMode_leftMousePressed(app, event):
     selectCell(app, event.x, event.y-150)
     moveItemHand(app)
 
-
 def craftMode_keyPressed(app, event):
     app.mode = 'gameMode'
 
@@ -124,17 +127,19 @@ def deathScreen_keyPressed(app, event):
 ###############
 def appStarted(app):
     app.mode = 'menuMode'
-    app.cols = 100 # Initial chunk generation
+    app.timerCount = 0
+    app.cols = 100
     app.rows = 100
-    app.grid = genChunk(app, app.rows, app.cols)
+    app.chunkRow = 100 # generate this much at one time
+    app.chunkCol = 50
+    app.grid = genChunk(app, app.rows, app.cols) # Initial chunk generation
     app.blockLen = 20
     app.player = Player(app, app.grid)
     app.scrollX = 0
     app.scrollY = 0
-    app.timerDelay = 10
+    app.timerDelay = 10 #10ms delay
     app.mobs = []
     app.breakBlock = True
-
 
     # Crafting
     app.craftMargin = 200

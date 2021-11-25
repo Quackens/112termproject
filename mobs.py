@@ -10,6 +10,7 @@ class Bat(Player):
         self.playerY = posY
         self.playerLen = self.app.blockLen
         self.playerWidth = self.app.blockLen
+        self.path = []
     
     def render(self, canvas):
         x, y = self.playerX, self.playerY
@@ -23,7 +24,9 @@ class Bat(Player):
 #############################
 # BFS PATHFINDING ALGORITHM #
 #############################
-    
+
+# TODO: Make game run faster by changing how mobs move 
+
     # Returns whether the bat is close to the player (within a block radius of the player)
     def nearPlayer(self, mobRow, mobCol):
         playerRow, playerCol = GetBounds.RowCol(self.app, self.app.player.playerX, self.app.player.playerY)

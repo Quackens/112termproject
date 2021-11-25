@@ -7,17 +7,20 @@ def topTerrainGenerator(x, y): #col is x, row is y
     return int(y) # col is going to be unaffected, ROW is going to be changed
 
 # Generates a chunk
-def genChunk(app, rows, cols):
+def genChunk(app, rows, cols, colOffset=0):
     chunk = [[]*cols for row in range(rows)]
     groundLevelBase = app.rows // 4
     cave = caveGen(rows, cols)
     for row in range(rows):
         for col in range(cols):
-            groundLevel = groundLevelBase + topTerrainGenerator(col, row)
+            groundLevel = groundLevelBase + topTerrainGenerator(col+colOffset, row)
+            randomTree = random.randint(0, 10)
             if row < groundLevel:
                 chunk[row].append(AirBlock(app, row, col))
             elif row == groundLevel:
                 chunk[row].append(GrassBlock(app, row, col))
+                if randomTree == 10 and (app.cols - 10 > col > 10) and (10 < row < app.rows - 10):
+                    makeTree(app, chunk, row-1, col)
             elif groundLevel < row < groundLevel+4:
                 chunk[row].append(DirtBlock(app, row, col))
             elif groundLevel+4 <= row < groundLevel+random.randint(6, 10):
@@ -107,8 +110,14 @@ def caveGen(rows, cols):
 # Research
 # https://www.reddit.com/r/proceduralgeneration/comments/3yh2ze/terraria_cave_generation/
 
-# Grass level generation: sine + cos waves, noise 
-# HIgh frequency = low amplitude and vice versa
-
+def makeTree(app, chunk, row, col): #row, col is base log block
+    chunk[row][col] = LogBlock(app, row, col)
+    chunk[row-1][col] = LogBlock(app, row-1, col)
+    chunk[row-2][col] = LogBlock(app, row-2, col)
+    chunk[row-3][col] = LogBlock(app, row-3, col)
+    chunk[row-3][col-1] = LeafBlock(app, row-3, col-1)
+    chunk[row-3][col+1] = LeafBlock(app, row-3, col+1)
+    chunk[row-4][col] = LeafBlock(app, row-4, col)
+    
 
 
