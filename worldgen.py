@@ -14,22 +14,22 @@ def genChunk(app, rows, cols, colOffset=0):
     for row in range(rows):
         for col in range(cols):
             groundLevel = groundLevelBase + topTerrainGenerator(col+colOffset, row)
-            randomTree = random.randint(0, 10)
+            randomTree = random.randint(0, 5)
             if row < groundLevel:
-                chunk[row].append(AirBlock(app, row, col))
+                chunk[row].append(AirBlock(app, row, col+colOffset))
             elif row == groundLevel:
-                chunk[row].append(GrassBlock(app, row, col))
-                if randomTree == 10 and (app.cols - 10 > col > 10) and (10 < row < app.rows - 10):
-                    makeTree(app, chunk, row-1, col)
+                chunk[row].append(GrassBlock(app, row, col+colOffset))
+                if randomTree == 5 and (app.cols - 10 > col > 10) and (10 < row < app.rows - 10):
+                    makeTree(app, chunk, row-1, col, colOffset)
             elif groundLevel < row < groundLevel+4:
-                chunk[row].append(DirtBlock(app, row, col))
+                chunk[row].append(DirtBlock(app, row, col+colOffset))
             elif groundLevel+4 <= row < groundLevel+random.randint(6, 10):
-                chunk[row].append(StoneBlock(app, row, col))
+                chunk[row].append(StoneBlock(app, row, col+colOffset))
             else:
                 if cave[row][col] == False:
-                    chunk[row].append(AirBlock(app, row, col))
+                    chunk[row].append(AirBlock(app, row, col+colOffset))
                 else:
-                    chunk[row].append(StoneBlock(app, row, col))
+                    chunk[row].append(StoneBlock(app, row, col+colOffset))
     return chunk
 
 # Cave generation
@@ -110,14 +110,14 @@ def caveGen(rows, cols):
 # Research
 # https://www.reddit.com/r/proceduralgeneration/comments/3yh2ze/terraria_cave_generation/
 
-def makeTree(app, chunk, row, col): #row, col is base log block
-    chunk[row][col] = LogBlock(app, row, col)
-    chunk[row-1][col] = LogBlock(app, row-1, col)
-    chunk[row-2][col] = LogBlock(app, row-2, col)
-    chunk[row-3][col] = LogBlock(app, row-3, col)
-    chunk[row-3][col-1] = LeafBlock(app, row-3, col-1)
-    chunk[row-3][col+1] = LeafBlock(app, row-3, col+1)
-    chunk[row-4][col] = LeafBlock(app, row-4, col)
+def makeTree(app, chunk, row, col, colOffset): #row, col is base log block
+    chunk[row][col] = LogBlock(app, row, col+colOffset)
+    chunk[row-1][col] = LogBlock(app, row-1, col+colOffset)
+    chunk[row-2][col] = LogBlock(app, row-2, col+colOffset)
+    chunk[row-3][col] = LogBlock(app, row-3, col+colOffset)
+    chunk[row-3][col-1] = LeafBlock(app, row-3, col-1+colOffset)
+    chunk[row-3][col+1] = LeafBlock(app, row-3, col+1+colOffset)
+    chunk[row-4][col] = LeafBlock(app, row-4, col+colOffset)
     
 
 

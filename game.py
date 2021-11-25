@@ -30,16 +30,20 @@ def updatePlayerChunk(app):
 def generateNewChunk(app):
     (px0, py0, px1, py1) = app.player.getPlayerBounds()
     playerRow, playerCol = GetBounds.RowCol(app, px0 + app.blockLen/2, py0 + app.blockLen)
-    if abs(playerCol - app.cols) < 10:
+    print(abs(playerCol - app.cols)) #bug found: playerrow col not updating
+    if abs(playerCol - app.cols) < 40:
         appendChunks(app)
 
 def appendChunks(app):
     colOffset = app.cols # Takes into account the top level terrain generation
     newChunk = genChunk(app, app.chunkRow, app.chunkCol, colOffset)
+    print(len(app.grid[0]))
+    print(len(newChunk[0]))
     for i in range(len(newChunk)):
         app.grid[i].extend(newChunk[i])
     app.player.currChunk = app.grid
     app.cols += app.chunkCol
+    print(len(app.grid[0]))
 
 
 # TODO: save game mechanic?

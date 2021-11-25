@@ -26,7 +26,6 @@ def menuMode_keyPressed(app, event):
 # Game Mode
 #####################
 
-# Movement
 def gameMode_keyPressed(app, event):
     if event.key == "d": app.player.movePlayerRight(True)
     if event.key == "a": app.player.movePlayerLeft(True)
@@ -128,7 +127,7 @@ def deathScreen_keyPressed(app, event):
 def appStarted(app):
     app.mode = 'menuMode'
     app.timerCount = 0
-    app.cols = 100
+    app.cols = 50
     app.rows = 100
     app.chunkRow = 100 # generate this much at one time
     app.chunkCol = 50
