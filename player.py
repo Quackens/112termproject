@@ -1,7 +1,10 @@
+##########################################################
+# This file contains the player class - stats, movement
+##########################################################
+
 from entities import *
 import copy
 
-# Player class
 class Player(object):
     def __init__(self, app, chunk):
         self.app = app
@@ -21,6 +24,9 @@ class Player(object):
         self.inventory = [[] for i in range(36)]
         self.inventoryHold = []
         self.selectedStack = 0
+        
+        # Crafting grid entity
+        self.craftGrid = [[] for i in range(10)]
     
     # Returns the absolute bounds of the player
     def getPlayerBounds(self):
@@ -205,17 +211,19 @@ class Player(object):
             self.app.grid[row][col] = AirBlock(self.app, oldBlock.row, oldBlock.col)
             # Add it to inventory
 
+
     def attackBlock(self, x, y):
         attackRow, attackCol = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
         i = 0
-        while i < len(self.app.mobs):
-            mob = self.app.mobs[i]
-            mobRow, mobCol = GetBounds.RowCol(self.app, mob.playerX, mob.playerY)
-            if (attackRow, attackCol) == (mobRow, mobCol):
-                self.app.mobs.pop(i)
-            else:
-                i += 1
-            
+        if self.blockInRange(attackRow, attackCol):
+            while i < len(self.app.mobs):
+                mob = self.app.mobs[i]
+                mobRow, mobCol = GetBounds.RowCol(self.app, mob.playerX, mob.playerY)
+                if (attackRow, attackCol) == (mobRow, mobCol):
+                    self.app.mobs.pop(i)
+                else:
+                    i += 1
+                
     def placeBlock(self, x, y):
         row, col = GetBounds.RowCol(self.app, x+self.app.scrollX, y+self.app.scrollY)
         if (self.inventory[self.selectedStack] != [] and self.blockInRange(row, col) 

@@ -1,3 +1,7 @@
+##########################################################
+# This file contains the mob class - stats and movement
+##########################################################
+
 from player import *
 from entities import *
 
@@ -26,6 +30,7 @@ class Bat(Player):
 #############################
 
 # TODO: Make game run faster by changing how mobs move 
+
 
     # Returns whether the bat is close to the player (within a block radius of the player)
     def nearPlayer(self, mobRow, mobCol):

@@ -1,3 +1,7 @@
+#######################################################################
+# This file contains functions that changes the gameplay in real time
+#######################################################################
+
 from entities import *
 from player import *
 from mobs import *
@@ -30,27 +34,48 @@ def updatePlayerChunk(app):
 def generateNewChunk(app):
     (px0, py0, px1, py1) = app.player.getPlayerBounds()
     playerRow, playerCol = GetBounds.RowCol(app, px0 + app.blockLen/2, py0 + app.blockLen)
-    print(abs(playerCol - app.cols)) #bug found: playerrow col not updating
+    # print(abs(playerCol - app.cols)) #bug found: playerrow col not updating
     if abs(playerCol - app.cols) < 40:
         appendChunks(app)
 
 def appendChunks(app):
     colOffset = app.cols # Takes into account the top level terrain generation
     newChunk = genChunk(app, app.chunkRow, app.chunkCol, colOffset)
-    print(len(app.grid[0]))
-    print(len(newChunk[0]))
     for i in range(len(newChunk)):
         app.grid[i].extend(newChunk[i])
     app.player.currChunk = app.grid
     app.cols += app.chunkCol
-    print(len(app.grid[0]))
-
 
 # TODO: save game mechanic?
     # Convert block information, inventory, player and mob posiiton into string using repr
     # then store string into a csv file
     
+def drawPlayerHealth(app, canvas):
+    # One heart (red square) for every 100 health
+    hearts = app.player.health // 100
+    heartMargin = 50
+    for i in range(hearts):
+        canvas.create_rectangle(heartMargin + i*(10), 40, heartMargin + 10 + i*(10), 50, fill="Red")
+    canvas.create_text(10, 40, text="Health:", anchor = 'nw')
 
+def drawToolBar(app, canvas):
+    for i in range(5):
+        margin = 100
+        size = 100
+        if i == app.player.selectedStack:
+            canvas.create_rectangle(50, margin + i*size, 150, margin + (i+1)*size, outline="Red", width=5)
+        else:
+            canvas.create_rectangle(50, margin + i*size, 150, margin + (i+1)*size, width=2)
+
+        cx, cy = 100, (margin + i*size + margin + (i+1)*size) / 2
+        if app.player.inventory[i] != []:
+            canvas.create_text(cx, cy, text=f"{app.player.inventory[i][0]}: {len(app.player.inventory[i])}")
+        else:
+            canvas.create_text(cx, cy, text=f"")
+    
+
+
+ 
 
 
 

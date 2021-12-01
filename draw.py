@@ -1,3 +1,6 @@
+#########################################################################
+# Main file where the graphics framework is run
+#########################################################################
 from cmu_112_graphics import *
 from entities import *
 from worldgen import *
@@ -11,7 +14,7 @@ from crafting import *
 # and right mouse button presses (for break and place block mechanisms) #
 #########################################################################
 
-#####################e
+#####################
 # Menu Screen
 #####################
 
@@ -26,6 +29,7 @@ def menuMode_keyPressed(app, event):
 # Game Mode
 #####################
 
+# Movement
 def gameMode_keyPressed(app, event):
     if event.key == "d": app.player.movePlayerRight(True)
     if event.key == "a": app.player.movePlayerLeft(True)
@@ -65,9 +69,10 @@ def gameMode_timerFired(app):
     app.player.changeY()
     app.player.changeX()
 
-    mobGenerator(app)
+
     if app.timerCount % 10 == 0:
         generateNewChunk(app)
+        mobGenerator(app)
 
     for mob in app.mobs:
             mob.takeStep()
@@ -81,14 +86,18 @@ def gameMode_redrawAll(app, canvas):
     app.player.render(canvas)
     app.player.highlightBlock(canvas, app.player.mouseX, app.player.mouseY)
     drawMobs(app, canvas)
+    drawPlayerHealth(app, canvas)
+    drawToolBar(app, canvas)
 
-    canvas.create_text(400, 100, text=f"Selected Block = {app.player.selectedStack + 1}")
-    for index in range(5):
-        if app.player.inventory[index] != []:
-            canvas.create_text(100, 110+index*20, text=f"Stack{index} = {app.player.inventory[index][0]}: {len(app.player.inventory[index])}")
-        else:
-            canvas.create_text(100, 110+index*20, text=f"Stack{index} = Empty")
-    canvas.create_text(100, 250, text=f"Health: {app.player.health}")
+    # Legacy Code
+    # canvas.create_text(400, 100, text=f"Selected Block = {app.player.selectedStack + 1}")
+
+    # for index in range(5):
+    #     if app.player.inventory[index] != []:
+    #         canvas.create_text(100, 110+index*20, text=f"Stack{index} = {app.player.inventory[index][0]}: {len(app.player.inventory[index])}")
+    #     else:
+    #         canvas.create_text(100, 110+index*20, text=f"Stack{index} = Empty")
+    
 
     # canvas.create_text(400, 200, text=f"Inventory = {app.player.inventory}")
     # canvas.create_text(400, 150, text=f"On floor = {app.player.isOnFloor()}")
@@ -101,10 +110,21 @@ def gameMode_redrawAll(app, canvas):
 def craftMode_redrawAll(app, canvas):
     canvas.create_text(app.width/2, 100, text='Press "e" to exit inventory and return to game')
     drawInventory(app, canvas)
+    drawCraftMenu(app, canvas)
 
 def craftMode_leftMousePressed(app, event):
     selectCell(app, event.x, event.y-150)
-    moveItemHand(app)
+    if app.craftSelect[0] < 999:
+        moveItemHand(app)
+    else:
+        moveItemCraft(app)
+    
+def craftMode_rightMousePressed(app, event):
+    selectCell(app, event.x, event.y-150)
+    if app.craftSelect[0] < 999:
+        splitItemHand(app)
+    else:
+        splitItemCraft(app)
 
 def craftMode_keyPressed(app, event):
     app.mode = 'gameMode'
@@ -127,7 +147,7 @@ def deathScreen_keyPressed(app, event):
 def appStarted(app):
     app.mode = 'menuMode'
     app.timerCount = 0
-    app.cols = 50
+    app.cols = 100
     app.rows = 100
     app.chunkRow = 100 # generate this much at one time
     app.chunkCol = 50

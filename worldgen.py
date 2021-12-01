@@ -1,3 +1,7 @@
+##########################################################
+# This file procedurally generates the world
+##########################################################
+
 from entities import *
 import random
 import math

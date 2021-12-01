@@ -1,3 +1,7 @@
+##########################################################
+# This file contains block classes
+##########################################################
+
 from cmu_112_graphics import *
 
 
@@ -97,4 +101,29 @@ class WoodPlankBlock(Block):
     def __repr__(self):
         return 'WoodPlankBlock'
 
+class Item(object):
+    def __init__(self, app):
+        self.app = app
 
+class StickItem(Item):
+    def __init__(self, app):
+        super().__init__(app)
+        self.texture = "Brown"
+    
+    def __repr__(self):
+        return 'Stick'
+    
+    def render(self, canvas, cx, cy):
+        canvas.create_rectangle(cx-2, cy-4, cx+2, cy+4, fill=self.texture)
+
+class StoneAxeItem(Item):
+    def __init__(self, app):
+        super().__init__(app)
+        self.texture = "Brown"
+    
+    def __repr__(self):
+        return 'Stone Axe'
+    
+    def render(self, canvas, cx, cy):
+        canvas.create_rectangle(cx-2, cy-4, cx+2, cy+4, fill=self.texture)
+    
